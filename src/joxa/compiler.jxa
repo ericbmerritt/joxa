@@ -1976,14 +1976,14 @@
                                                       arity)
                                     (args-to-arity arg-list 1 arity []))})
            ({:remote module function possible-arity}
-            {ctx0 (cerl/ann_c_call annots
+            {ctx1 (cerl/ann_c_call annots
                                    (cerl/ann_c_atom call-annots
                                                     module)
                                    (cerl/ann_c_atom call-annots
                                                     function)
                                    arg-list)})
            ({:remote-rest module function arity}
-            {ctx0 (cerl/ann_c_call annots
+            {ctx1 (cerl/ann_c_call annots
                                    (cerl/ann_c_atom call-annots
                                                     module)
                                    (cerl/ann_c_atom call-annots
