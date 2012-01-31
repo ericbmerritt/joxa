@@ -1,5 +1,5 @@
 (module joxa.core
-        (require erlang lists))
+        (require erlang lists proplists))
 
 (defn+ +(&rest args)
   (case args
@@ -24,4 +24,56 @@
      (erlang/- 0 a))
     ((a . rest)
      (- rest a))))
+
+
+;; Argument expansion
+
+(defn zipseq (n l)
+  (lists/reverse
+   (lists/map (fn (zip)
+                  (erlang/list_to_tuple (lists/reverse zip)))
+              (lists/foldl (fn (e acc)
+                               (case acc 
+                                 ((h . t)
+                                  (when (erlang/< (erlang/length h) n))
+                                  ((e . h) . t))
+                                 (_
+                                  ([e] . acc))))
+                           [] l))))
+(defn unzipseq (l)
+   (lists/foldl (fn (e acc)
+                    (lists/concat [acc (erlang/tuple_to_list e)]))
+                [] l))
+
+(defn expand-keyword-arguments (spec args0)
+  (let (args1 (zipseq 2 args0))
+    (lists/reverse
+     (case 
+         (lists/foldl
+          (fn (arg-spec accum)
+              (case accum
+                ({args acc}
+                       (case arg-spec
+                         (:&rest
+                          {[] ((unzipseq args) . acc)})
+                         (name
+                          (when (erlang/is_atom name))
+                          (case (lists/keyfind name 1 args)
+                            (:false
+                             (erlang/throw {:undefined-keyword-argument name}))
+                            ({name value}
+                                   {(lists/keydelete name 1 args) (value . acc)}
+                                   )))
+                         ([name default]
+                                {(lists/keydelete name 1 args) ( (proplists/get_value name args default) . acc)}
+                                )))))
+          {args1 []} spec)
+       ({_ acc} acc)))))
+
+(defn+ expand-arguments (spec args)
+  (let (keyword-args (case (lists/dropwhile (fn (a) 
+                                                (erlang/not (erlang/== a :&keyword))) spec)
+                       ([] [])
+                       ((:&keyword . t) t)))
+        (expand-keyword-arguments keyword-args args)))
 
