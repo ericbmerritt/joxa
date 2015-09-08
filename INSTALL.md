@@ -26,7 +26,6 @@ Joxa has several compile time dependencies and one two time dependencies.
 ### Compile Time Dependencies
 
 * [Cucumberl](https://github.com/membase/cucumberl) at least version 0.0.5
-* [Proper](https://github.com/manopapad/proper) at least version 1.0
 
 ### Runtime Dependencies
 

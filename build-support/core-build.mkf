@@ -31,7 +31,7 @@ TESTBEAMS = $(TEST_EBIN)/joxa-test-let-match.beam \
 	$(TEST_EBIN)/joxa-test-cc.beam
 
 .PHONY: all bootstrap clean update-versions \
-	jxa test build get-deps proper eunit \
+	jxa test build get-deps eunit \
 	cucumber shell bare-escript
 
 .PRECIOUS: %/.d
@@ -85,16 +85,12 @@ jxa-clean:
 jxa-distclean: jxa-clean
 	rm -rf $(APPDIR)/deps
 
-test: build proper eunit cucumber
+test: build eunit cucumber
 
 eunit: build $(TESTBEAMS)
 	$(REBAR) skip_deps=true eunit
 	$(ERL) $(ERLFLAGS) $(TEST_FLAGS) -s 'joxa-build-support' main eunit $(BEAMDIR) -s init stop
 	$(ERL) $(ERLFLAGS) $(TEST_FLAGS) -s 'joxa-build-support' main eunit $(TEST_EBIN) -s init stop
-
-proper: eunit $(SRCBEAMS) $(TESTBEAMS)
-	$(ERL) $(ERLFLAGS) $(TEST_FLAGS) -s 'joxa-build-support' main proper $(TEST_EBIN) -s init stop
-
 
 cucumber: eunit $(SRCBEAMS) $(TESTBEAMS)
 	$(ERL) $(ERLFLAGS) $(TEST_FLAGS) -s 'joxa-build-support' main cucumberl $(CURDIR) -s init stop

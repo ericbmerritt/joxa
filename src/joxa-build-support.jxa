@@ -4,7 +4,7 @@
 ;; This module provides some functionality that helps in applying
 ;; tests from a makefile. Given a path to an OTP application it will
 ;; extract all of the module names from the app and attempt to run the
-;; proper and eunit tests on said modules.
+;; eunit tests on said modules.
 (ns joxa-build-support
     (require joxa-eunit
              joxa-assert
@@ -14,7 +14,6 @@
              string
              filename
              re
-             proper
              init
              io
              file
@@ -65,13 +64,6 @@
          (when (== :error (joxa-eunit/test mod))
            (init/stop 1))))))
 
-(defn+ proper-test-app (path)
-    (joxa-lists/dolist
-     (mod (gather-modules-from-app path))
-     (let* (exports (erlang/get_module_info mod :exports))
-         (unless (== [] (proper/module mod))
-           (init/stop 1)))))
-
 (defn+ gather-features-from-app (path)
   (let* (feature-path (filename/join path "features"))
     (filelib/fold_files feature-path ".+\.feature" :true
@@ -95,8 +87,6 @@
   (case args
     ([:eunit path]
      (eunit-test-app (erlang/atom_to_list path)))
-    ([:proper path]
-     (proper-test-app (erlang/atom_to_list path)))
     ([:cucumberl path]
      (cucumberl-test-app (erlang/atom_to_list path)))
     ([:print path]
